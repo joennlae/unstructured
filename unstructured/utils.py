@@ -300,46 +300,7 @@ def only(it: Iterable[Any]) -> Any:
 
 
 def scarf_analytics():
-    try:
-        subprocess.check_output("nvidia-smi")
-        gpu_present = True
-    except Exception:
-        gpu_present = False
-
-    python_version = ".".join(platform.python_version().split(".")[:2])
-
-    try:
-        if os.getenv("SCARF_NO_ANALYTICS") != "true" and os.getenv("DO_NOT_TRACK") != "true":
-            if "dev" in __version__:
-                requests.get(
-                    "https://packages.unstructured.io/python-telemetry?version="
-                    + __version__
-                    + "&platform="
-                    + platform.system()
-                    + "&python"
-                    + python_version
-                    + "&arch="
-                    + platform.machine()
-                    + "&gpu="
-                    + str(gpu_present)
-                    + "&dev=true",
-                )
-            else:
-                requests.get(
-                    "https://packages.unstructured.io/python-telemetry?version="
-                    + __version__
-                    + "&platform="
-                    + platform.system()
-                    + "&python"
-                    + python_version
-                    + "&arch="
-                    + platform.machine()
-                    + "&gpu="
-                    + str(gpu_present)
-                    + "&dev=false",
-                )
-    except Exception:
-        pass
+    pass
 
 
 def ngrams(s: list[str], n: int) -> list[tuple[str, ...]]:
