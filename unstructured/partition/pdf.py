@@ -582,7 +582,7 @@ def _partition_pdf_or_image_local(
 
     hi_res_model_name = hi_res_model_name or model_name or default_hi_res_model()
     if pdf_image_dpi is None:
-        pdf_image_dpi = 300 if hi_res_model_name.startswith("chipper") else 200
+        pdf_image_dpi = 300 if hi_res_model_name.startswith("chipper") else 300 
     if (pdf_image_dpi < 300) and (hi_res_model_name.startswith("chipper")):
         logger.warning(
             "The Chipper model performs better when images are rendered with DPI >= 300 "
