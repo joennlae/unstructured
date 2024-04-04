@@ -39,8 +39,11 @@ class OCRAgent(ABC):
         pass
 
     @staticmethod
-    @functools.lru_cache(maxsize=None)
+    # we deactivate this cache as it doesn't work together with injection
+    # results in RuntimeError: could not execute a primitive
+    # @functools.lru_cache(maxsize=None)
     def get_instance(ocr_agent_module: str) -> "OCRAgent":
+        print("LOADING OCR AGENT", ocr_agent_module)
         module_name, class_name = ocr_agent_module.rsplit(".", 1)
         if module_name in OCR_AGENT_MODULES_WHITELIST:
             module = importlib.import_module(module_name)
