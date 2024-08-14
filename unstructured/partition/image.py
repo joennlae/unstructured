@@ -32,6 +32,7 @@ def partition_image(
     starting_page_number: int = 1,
     extract_forms: bool = False,
     form_extraction_skip_tables: bool = True,
+    ocr_agent: Optional[Any] = None,
     **kwargs: Any,
 ) -> list[Element]:
     """Parses an image into a list of interpreted elements.
@@ -113,5 +114,6 @@ def partition_image(
         starting_page_number=starting_page_number,
         extract_forms=extract_forms,
         form_extraction_skip_tables=form_extraction_skip_tables,
+        ocr_agent=ocr_agent,
         **kwargs,
     )

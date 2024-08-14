@@ -38,18 +38,18 @@ class OCRAgentPaddle(OCRAgent):
             logger.info(f"Loading paddle with GPU on language={language}...")
         else:
             logger.info(f"Loading paddle with CPU on language={language}...")
-        try:
-            # Enable MKL-DNN for paddle to speed up OCR if OS supports it
-            # ref: https://paddle-inference.readthedocs.io/en/master/
-            #      api_reference/cxx_api_doc/Config/CPUConfig.html
-            paddle_ocr = PaddleOCR(
-                use_angle_cls=True,
-                use_gpu=gpu_available,
-                lang=language,
-                enable_mkldnn=True,
-                show_log=False,
-            )
-        except AttributeError:
+        # try:
+        #     # Enable MKL-DNN for paddle to speed up OCR if OS supports it
+        #     # ref: https://paddle-inference.readthedocs.io/en/master/
+        #     #      api_reference/cxx_api_doc/Config/CPUConfig.html
+        #     paddle_ocr = PaddleOCR(
+        #         use_angle_cls=True,
+        #         use_gpu=gpu_available,
+        #         lang=language,
+        #         enable_mkldnn=True,
+        #         show_log=False,
+        #     )
+        # except AttributeError:
             paddle_ocr = PaddleOCR(
                 use_angle_cls=True,
                 use_gpu=gpu_available,
