@@ -1,3 +1,4 @@
+from typing import Optional
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -9,7 +10,7 @@ from unstructured.utils import requires_dependencies
 
 
 @requires_dependencies("unstructured_inference")
-def image_or_pdf_to_dataframe(filename: str) -> pd.DataFrame:
+def image_or_pdf_to_dataframe(filename: str, ocr_agent: Optional[OCRAgent] = None) -> pd.DataFrame:
     """helper to JUST run table transformer on the input image/pdf file. It assumes the input is
     JUST a table. This is intended to facilitate metric tracking on table structure detection ALONE
     without mixing metric of element detection model"""
@@ -22,7 +23,8 @@ def image_or_pdf_to_dataframe(filename: str) -> pd.DataFrame:
     else:
         image = Image.open(filename).convert("RGB")
 
-    ocr_agent = OCRAgent.get_agent(language="eng")
+    if ocr_agent is None:
+        ocr_agent = OCRAgent.get_agent(language="eng")
 
     return tables_agent.run_prediction(
         image, ocr_tokens=get_table_tokens(image, ocr_agent), result_format="dataframe"
@@ -34,12 +36,13 @@ def eval_table_transformer_for_file(
     filename: str,
     true_table_filename: str,
     eval_func: str = "token_ratio",
+    ocr_agent: Optional[OCRAgent] = None,
 ) -> float:
     """evaluate the predicted table structure vs. actual table structure by column and row as a
     number between 0 and 1"""
     from unstructured_inference.models.eval import compare_contents_as_df
 
-    pred_table = image_or_pdf_to_dataframe(filename).fillna("").replace(np.nan, "")
+    pred_table = image_or_pdf_to_dataframe(filename, ocr_agent=ocr_agent).fillna("").replace(np.nan, "")
     actual_table = pd.read_csv(true_table_filename).astype(str).fillna("").replace(np.nan, "")
 
     results = np.array(

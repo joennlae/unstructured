@@ -95,6 +95,8 @@ from unstructured.partition.utils.sorting import coord_has_valid_points, sort_pa
 from unstructured.patches.pdfminer import parse_keyword
 from unstructured.utils import requires_dependencies
 
+from unstructured.partition.utils.ocr_models.ocr_interface import OCRAgent
+
 if TYPE_CHECKING:
     pass
 
@@ -140,6 +142,7 @@ def partition_pdf(
     starting_page_number: int = 1,
     extract_forms: bool = False,
     form_extraction_skip_tables: bool = True,
+    ocr_agent: Optional[OCRAgent] = None,
     **kwargs: Any,
 ) -> list[Element]:
     """Parses a pdf document into a list of interpreted elements.
@@ -224,6 +227,7 @@ def partition_pdf(
         starting_page_number=starting_page_number,
         extract_forms=extract_forms,
         form_extraction_skip_tables=form_extraction_skip_tables,
+        ocr_agent=ocr_agent,
         **kwargs,
     )
 
@@ -246,6 +250,7 @@ def partition_pdf_or_image(
     starting_page_number: int = 1,
     extract_forms: bool = False,
     form_extraction_skip_tables: bool = True,
+    ocr_agent: Optional[OCRAgent] = None,
     **kwargs: Any,
 ) -> list[Element]:
     """Parses a pdf or image document into a list of interpreted elements."""
@@ -327,6 +332,7 @@ def partition_pdf_or_image(
                 starting_page_number=starting_page_number,
                 extract_forms=extract_forms,
                 form_extraction_skip_tables=form_extraction_skip_tables,
+                ocr_agent=ocr_agent,
                 **kwargs,
             )
             out_elements = _process_uncategorized_text_elements(elements)
@@ -352,6 +358,7 @@ def partition_pdf_or_image(
                 is_image=is_image,
                 metadata_last_modified=metadata_last_modified or last_modification_date,
                 starting_page_number=starting_page_number,
+                ocr_agent=ocr_agent,
                 **kwargs,
             )
             out_elements = _process_uncategorized_text_elements(elements)
@@ -561,6 +568,7 @@ def _partition_pdf_or_image_local(
     extract_forms: bool = False,
     form_extraction_skip_tables: bool = True,
     pdf_hi_res_max_pages: Optional[int] = None,
+    ocr_agent: Optional[OCRAgent] = None,
     **kwargs: Any,
 ) -> list[Element]:
     """Partition using package installed locally"""
@@ -654,6 +662,7 @@ def _partition_pdf_or_image_local(
                 ocr_mode=ocr_mode,
                 pdf_image_dpi=pdf_image_dpi,
                 ocr_drawer=ocr_drawer,
+                ocr_agent=ocr_agent,
             )
     else:
         inferred_document_layout = process_data_with_model(
@@ -713,6 +722,7 @@ def _partition_pdf_or_image_local(
                 ocr_mode=ocr_mode,
                 pdf_image_dpi=pdf_image_dpi,
                 ocr_drawer=ocr_drawer,
+                ocr_agent=ocr_agent,
             )
 
     # NOTE(alan): starting with v2, chipper sorts the elements itself.
@@ -870,6 +880,7 @@ def _partition_pdf_or_image_with_ocr(
     is_image: bool = False,
     metadata_last_modified: Optional[str] = None,
     starting_page_number: int = 1,
+    ocr_agent: Optional[OCRAgent] = None,
     **kwargs: Any,
 ):
     """Partitions an image or PDF using OCR. For PDFs, each page is converted
@@ -889,6 +900,7 @@ def _partition_pdf_or_image_with_ocr(
                 page_number=page_number,
                 include_page_breaks=include_page_breaks,
                 metadata_last_modified=metadata_last_modified,
+                ocr_agent=ocr_agent
                 **kwargs,
             )
             elements.extend(page_elements)
@@ -903,6 +915,7 @@ def _partition_pdf_or_image_with_ocr(
                 page_number=page_number,
                 include_page_breaks=include_page_breaks,
                 metadata_last_modified=metadata_last_modified,
+                ocr_agent=ocr_agent,
                 **kwargs,
             )
             elements.extend(page_elements)
@@ -918,13 +931,13 @@ def _partition_pdf_or_image_with_ocr_from_image(
     include_page_breaks: bool = False,
     metadata_last_modified: Optional[str] = None,
     sort_mode: str = SORT_MODE_XY_CUT,
+    ocr_agent: Optional[OCRAgent] = None,
     **kwargs: Any,
 ) -> list[Element]:
     """Extract `unstructured` elements from an image using OCR and perform partitioning."""
 
-    from unstructured.partition.utils.ocr_models.ocr_interface import OCRAgent
-
-    ocr_agent = OCRAgent.get_agent(language=ocr_languages)
+    if ocr_agent is None:
+        ocr_agent = OCRAgent.get_agent(language=ocr_languages)
 
     # NOTE(christine): `pytesseract.image_to_string()` returns sorted text
     if ocr_agent.is_text_sorted():

@@ -37,6 +37,7 @@ def process_data_with_ocr(
     ocr_mode: str = OCRMode.FULL_PAGE.value,
     pdf_image_dpi: int = 200,
     ocr_drawer: Optional[OCRLayoutDrawer] = None,
+    ocr_agent: Optional[OCRAgent] = None,
 ) -> "DocumentLayout":
     """
     Process OCR data from a given data and supplement the output DocumentLayout
@@ -83,6 +84,7 @@ def process_data_with_ocr(
             ocr_mode=ocr_mode,
             pdf_image_dpi=pdf_image_dpi,
             ocr_drawer=ocr_drawer,
+            ocr_agent=ocr_agent,
         )
     finally:
         if os.path.isfile(file_name):
@@ -102,6 +104,7 @@ def process_file_with_ocr(
     ocr_mode: str = OCRMode.FULL_PAGE.value,
     pdf_image_dpi: int = 200,
     ocr_drawer: Optional[OCRLayoutDrawer] = None,
+    ocr_agent: Optional[OCRAgent] = None,
 ) -> "DocumentLayout":
     """
     Process OCR data from a given file and supplement the output DocumentLayout
@@ -149,6 +152,7 @@ def process_file_with_ocr(
                         ocr_mode=ocr_mode,
                         extracted_regions=extracted_regions,
                         ocr_drawer=ocr_drawer,
+                        ocr_agent=ocr_agent,
                     )
                     merged_page_layouts.append(merged_page_layout)
                 return DocumentLayout.from_pages(merged_page_layouts)
@@ -172,6 +176,7 @@ def process_file_with_ocr(
                             ocr_mode=ocr_mode,
                             extracted_regions=extracted_regions,
                             ocr_drawer=ocr_drawer,
+                            ocr_agent=ocr_agent,
                         )
                         merged_page_layouts.append(merged_page_layout)
                 return DocumentLayout.from_pages(merged_page_layouts)
@@ -191,6 +196,7 @@ def supplement_page_layout_with_ocr(
     ocr_mode: str = OCRMode.FULL_PAGE.value,
     extracted_regions: Optional[List["TextRegion"]] = None,
     ocr_drawer: Optional[OCRLayoutDrawer] = None,
+    ocr_agent: Optional[OCRAgent] = None,
 ) -> "PageLayout":
     """
     Supplement an PageLayout with OCR results depending on OCR mode.
@@ -199,8 +205,8 @@ def supplement_page_layout_with_ocr(
     If mode is "individual_blocks", we find the elements from PageLayout
     with no text and add text from OCR to each element.
     """
-
-    ocr_agent = OCRAgent.get_agent(language=ocr_languages)
+    if ocr_agent is None:
+        ocr_agent = OCRAgent.get_agent(language=ocr_languages)
     if ocr_mode == OCRMode.FULL_PAGE.value:
         ocr_layout = ocr_agent.get_layout_from_image(image)
         if ocr_drawer:
